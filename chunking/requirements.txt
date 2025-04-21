@@ -1,0 +1,7 @@
+llama-index
+llama-index-readers-file
+llama-index-embeddings-openai  # O la lib del modelo que uses
+llama-index-vector-stores-faiss  # Opcional para almacenamiento vectorial
+tiktoken
+openai 
+pymupdf
