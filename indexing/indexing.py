@@ -1,25 +1,12 @@
 import requests
 import os
 import time
+import re
 from llama_index.core.embeddings import BaseEmbedding
 from pydantic import Field
 from typing import List
 
-def clean_text(text: str) -> str:
-    lines = text.strip().splitlines()
-    clean_lines = []
-
-    for line in lines:
-        if line.strip() == "":
-            continue
-        # Filtra líneas tipo consola o que parecen tabla
-        if line.strip().startswith("NAME ") or line.strip().startswith("pod/"):
-             continue
-        if "AGE" in line and "READY" in line:
-             continue
-        clean_lines.append(line.strip())
-
-    return " ".join(clean_lines)
+# Extensión de la clase embedding para soportar modelos locales
 
 class TEIEmbeddingModel(BaseEmbedding):
     api_url: str = Field()
@@ -62,10 +49,31 @@ class TEIEmbeddingModel(BaseEmbedding):
         embedding_vector = response_json["data"][0]["embedding"]
         return embedding_vector
 
+
+# Limpieza de texto para lieas de consola, tablas y demás.
+
+def clean_text(text: str) -> str:
+    lines = text.strip().splitlines()
+    clean_lines = []
+
+    for line in lines:
+        if line.strip() == "":
+            continue
+        # Filtra líneas tipo consola o que parecen tabla
+        if line.strip().startswith("NAME ") or line.strip().startswith("pod/"):
+             continue
+        if "AGE" in line and "READY" in line:
+             continue
+        clean_lines.append(line.strip())
+
+    return " ".join(clean_lines)
+
+
+
 # Crear instancia
 embedding_model = TEIEmbeddingModel(
     api_url="http://10.10.78.12:8001",
-    api_key="TU_API_KEY_DE_NVIDIA_NIM"
+    api_key="TU_API_KEY"
 )
 
 # Probar con un texto
@@ -114,11 +122,12 @@ for filename in os.listdir(chunk_dir):
             i=i+1
             lenemb = len(embedding)
             print(f'{i} Longitud: {lenemb}')
-            time.sleep(1)
+            #time.sleep(1)
             #print(embedding)
-            print(content)
+            #print(content)
         except Exception as e:
             print(f"Error al obtener embedding de {filename}: {e}")
+            print(content)
             continue
 
         output.append({
