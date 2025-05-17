@@ -1,4 +1,4 @@
-#Indexing
+# Indexing
 
 Etapa de obtención de vectores de embeddings obteniendo cada elemento en un fichero de texto y  generando su vector de embeddings. Con ello se contruye un JSON con los textos, los vectores y más información destinada a ser añadida a una base de datos vectorial
 
