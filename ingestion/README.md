@@ -1,5 +1,5 @@
 
-# Chunking
+# Ingestion
 
 Etapa de chunking basada en directorios con PDFs y generando su contenido en ficheros de texto con el metadato como primera línea.
 
