@@ -1,5 +1,7 @@
 import requests
+import argparse
 import os
+import json
 import time
 import re
 from llama_index.core.embeddings import BaseEmbedding
@@ -50,7 +52,7 @@ class TEIEmbeddingModel(BaseEmbedding):
         return embedding_vector
 
 
-# Limpieza de texto para lieas de consola, tablas y demás.
+# Limpieza de texto para lineas de consola, tablas y demás.
 
 def clean_text(text: str) -> str:
     lines = text.strip().splitlines()
@@ -69,22 +71,43 @@ def clean_text(text: str) -> str:
     return " ".join(clean_lines)
 
 
+##### main ####
+
+### Capturamos los distintos parámetros
+
+# Configuración de argparse
+parser = argparse.ArgumentParser(description="Conversión a embeddings de ficheros en modo texto (chunks)")
+parser.add_argument("--api_url", help="URL del modelo de embeddings")
+parser.add_argument("--api_key", help="API del modelo de embeddins")
+parser.add_argument("--txt_folder", help="Directorio donde están los ficheros de chunks en texto")
+parser.add_argument("--output_path", help="Directorio donde se escribirá el fichero json con los embeddings")
+
+args = parser.parse_args()
+
+# Opcional: Parámetros adicionales, como configuración de idioma o modo de extracción
+# parser.add_argument("--encoding", default="utf-8", help="Codificación del archivo de salida (predeterminado: utf-8)")
+
+api_url = args.api_url
+api_key = args.api_key
+
+txt_folder = args.txt_folder
+output_path = args.output_path
 
 # Crear instancia
 embedding_model = TEIEmbeddingModel(
-    api_url="http://10.10.78.12:8001",
-    api_key="TU_API_KEY"
+    api_url=api_url,
+    api_key=api_key
 )
 
-# Probar con un texto
-texto = "Este es un texto de prueba."
-vector = embedding_model._get_text_embedding(texto)
+# # Probar con un texto
+# texto = "Este es un texto de prueba."
+# vector = embedding_model._get_text_embedding(texto)
 
-print(f"Embedding (longitud {len(vector)}):")
-#print(vector)
+# print(f"Embedding (longitud {len(vector)}):")
+# #print(vector)
 
 # Ruta del directorio
-chunk_dir = os.path.expanduser("/home/davidfv/datasets/OCP_chunks")
+chunk_dir = os.path.expanduser(txt_folder)
 output = []
 i=0
 for filename in os.listdir(chunk_dir):
@@ -138,7 +161,9 @@ for filename in os.listdir(chunk_dir):
         })
 
 # Guardar en JSON
-with open("ocp_embeddings.json", "w", encoding="utf-8") as out_file:
+print(output_path + "ocp_embeddings.json")
+
+with open(output_path + "ocp_embeddings.json", "w", encoding="utf-8") as out_file:
     json.dump(output, out_file, ensure_ascii=False, indent=2)
 
 print(f"Procesados {len(output)} chunks y guardados en 'ocp_embeddings.json'")
