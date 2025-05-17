@@ -84,8 +84,6 @@ parser.add_argument("--output_path", help="Directorio donde se escribirá el fic
 
 args = parser.parse_args()
 
-# Opcional: Parámetros adicionales, como configuración de idioma o modo de extracción
-# parser.add_argument("--encoding", default="utf-8", help="Codificación del archivo de salida (predeterminado: utf-8)")
 
 api_url = args.api_url
 api_key = args.api_key
