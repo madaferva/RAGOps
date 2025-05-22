@@ -20,6 +20,7 @@ parser.add_argument("--host", help="Directorio donde se escribirá el fichero js
 
 args = parser.parse_args()
 
+
 collection_name = args.collection_name
 json_path = args.json_path
 host_port = args.host_port

@@ -2,12 +2,40 @@ from pathlib import Path
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SimpleNodeParser
 import argparse
+import unicodedata
+import re
+
+
+def clean_text(text: str) -> str:
+    lines = text.strip().splitlines()
+    clean_lines = []
+
+    for line in lines:
+        if line.strip() == "":
+            continue
+        if line.strip().startswith("NAME ") or line.strip().startswith("pod/"):
+            continue
+        if "AGE" in line and "READY" in line:
+            continue
+        clean_lines.append(line.strip())
+
+    cleaned_text = " ".join(clean_lines)
+
+    # Normaliza el texto: elimina acentos y caracteres especiales
+    cleaned_text = unicodedata.normalize('NFKD', cleaned_text).encode('ASCII', 'ignore').decode('utf-8')
+
+    # Elimina todo lo que no sea alfanumérico, espacios o puntos
+    cleaned_text = re.sub(r'[^a-zA-Z0-9 .]', '', cleaned_text)
+
+    return cleaned_text
+
 
 # Configuración de argparse
 parser = argparse.ArgumentParser(description="Extración de parrafos de un fichero PDF a distintos ficheros de texto")
 parser.add_argument("--pdf_folder", help="Directorio con PDFs")
 parser.add_argument("--output_path", help="Directorio de salida de los ficheros de texto")
-
+parser.add_argument("--chunk_size", help="Tamaño del chunker")
+parser.add_argument("--chunk_overlap", help="Tamaño de solape")
 args = parser.parse_args()
 
 # Opcional: Parámetros adicionales, como configuración de idioma o modo de extracción
@@ -16,15 +44,16 @@ args = parser.parse_args()
 pdf_folder = args.pdf_folder
 output_path = args.output_path
 
-
-
 # Configuración de paths
 
 input_dir = Path(pdf_folder)
 output_dir = Path(output_path)
 output_dir.mkdir(parents=True, exist_ok=True)
-chunk_size = 512
-chunk_overlap = 50
+
+# Configuración del chunker
+
+chunk_size = args.chunk_size
+chunk_overlap = args.chunk_overlap
 
 # === Configura el parser con chunking optimizado para RAG ===
 parser = SimpleNodeParser.from_defaults(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
@@ -61,7 +90,8 @@ for doc in documents:
     for node in nodes:   
       i=i+1
       print(f'{base_name} - {i}')
-      chunk_text = node.text
+      #chunk_text = node.text
+      chunk_text = clean_text(node.text)
 
       # Añadimos el metadata en la primera línea del fichero para poder
       # recuperarlo posteriormente en 

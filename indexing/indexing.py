@@ -68,7 +68,13 @@ def clean_text(text: str) -> str:
              continue
         clean_lines.append(line.strip())
 
-    return " ".join(clean_lines)
+    
+    cleaned_text = " ".join(clean_lines)
+
+    # Dejar solo caracteres alfanuméricos y espacios
+    cleaned_text = re.sub(r'[^a-zA-Z0-9\s]', '', cleaned_text)
+
+    return cleaned_text
 
 
 ##### main ####
