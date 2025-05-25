@@ -5,11 +5,11 @@ Etapa donde se pasa una pregunta y se devuelve un fichero JSON con las entradas 
 
 ## Argumentos:
 
+* query: Pregunta realizada por el usuario
 * collection_name: Nombre de la colección a crear en la base de datos vectorial
-* json_path: Path completo (incluido el archivo) del json con los chunks y los vectores previos
 * host_port: Puerto de la base de datos vectorial
 * host: Host de la base de datos vectorial
-* tok_k: Numero de entradas más relevantes devueltas
+* top_k: Numero de entradas más relevantes devueltas
 
 
 ### Ejemplo de ejecución:

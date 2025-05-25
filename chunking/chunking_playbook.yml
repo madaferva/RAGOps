@@ -1,0 +1,45 @@
+---
+- name: Desplegar contenedor de chunking
+  hosts: all
+  become: true
+  vars:
+    pdf_folder: "/home/davidfv/datasets/harrypotter_pdfs"
+    output_path: "/home/davidfv/datasets/harrypotter_chunks"
+    container_name: "chunking"
+    image_name: "chunking"
+
+  tasks:
+    # - name: Asegurar que Docker esté instalado
+    #   ansible.builtin.package:
+    #     name: docker.io
+    #     state: present
+
+    # - name: Asegurar que el servicio Docker esté activo
+    #   ansible.builtin.service:
+    #     name: containerd
+    #     state: started
+    #     enabled: true
+
+    - name: Ejecutar contenedor de chunking
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}"
+        state: started
+        restart_policy: unless-stopped
+        detach: false
+        # auto_remove: true
+        volumes:
+          - "{{ pdf_folder }}:/app/harrypotter_pdfs"
+          - "{{ output_path }}:/app/harrypotter_chunks"
+    
+        env:
+          PDF_FOLDER: "/app/harrypotter_pdfs"
+          OUTPUT_PATH: "/app/harrypotter_chunks"
+          CHUNK_SIZE: "256"
+          CHUNK_OVERLAP: "20"
+      register: chunking_output
+
+    - name: Mostrar salida del chunking
+      debug:
+        msg: "{{ chunking_output.container }}"
+

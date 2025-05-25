@@ -4,6 +4,7 @@ from llama_index.core.node_parser import SimpleNodeParser
 import argparse
 import unicodedata
 import re
+import os
 
 
 def clean_text(text: str) -> str:
@@ -24,18 +25,20 @@ def clean_text(text: str) -> str:
     # Normaliza el texto: elimina acentos y caracteres especiales
     cleaned_text = unicodedata.normalize('NFKD', cleaned_text).encode('ASCII', 'ignore').decode('utf-8')
 
+    cleaned_text = re.sub(r'\t', ' ', cleaned_text)
+
     # Elimina todo lo que no sea alfanumérico, espacios o puntos
-    cleaned_text = re.sub(r'[^a-zA-Z0-9 .]', '', cleaned_text)
+    cleaned_text = re.sub(r'[^a-zA-Z0-9¿?¡! .]', '', cleaned_text)
 
     return cleaned_text
 
 
 # Configuración de argparse
 parser = argparse.ArgumentParser(description="Extración de parrafos de un fichero PDF a distintos ficheros de texto")
-parser.add_argument("--pdf_folder", help="Directorio con PDFs")
-parser.add_argument("--output_path", help="Directorio de salida de los ficheros de texto")
-parser.add_argument("--chunk_size", help="Tamaño del chunker")
-parser.add_argument("--chunk_overlap", help="Tamaño de solape")
+parser.add_argument("--pdf_folder", help="Directorio con PDFs", default=os.getenv("PDF_FOLDER"))
+parser.add_argument("--output_path", help="Directorio de salida de los ficheros de texto", default=os.getenv("OUTPUT_PATH"))
+parser.add_argument("--chunk_size", help="Tamaño del chunker", default=os.getenv("CHUNK_SIZE") )
+parser.add_argument("--chunk_overlap", help="Tamaño de solape", default=os.getenv("CHUNK_OVERLAP"))
 args = parser.parse_args()
 
 # Opcional: Parámetros adicionales, como configuración de idioma o modo de extracción
@@ -96,7 +99,7 @@ for doc in documents:
       # Añadimos el metadata en la primera línea del fichero para poder
       # recuperarlo posteriormente en 
 
-      metadata = f"[SOURCE: {base_name}.pdf | CHUNK: {i}]\n\n"
+      metadata = f"[SOURCE: {base_name}.pdf | CHUNK: {i}]\n"
       chunk_file = output_dir / f"{base_name}_chunk_{i}.txt"
 
       with open(chunk_file, "w", encoding="utf-8") as f:

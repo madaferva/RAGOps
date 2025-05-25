@@ -68,9 +68,10 @@ for i in range(0, total_points, batch_size):
                 id=i + j,
                 vector=item["embedding"],
                 payload={
-                    "text": item["text"],
-                    "source": item["source"],
-                    "chunk": item["chunk"]
+                    # "text": item["text"],
+                    # "source": item["source"],
+                    # "chunk": item["chunk"]
+                    "text": item["text"]
                 }
             ))
         except Exception as e:
