@@ -1,5 +1,6 @@
 import json
 import argparse
+import os
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 from llama_index.vector_stores.qdrant import QdrantVectorStore
@@ -13,10 +14,10 @@ from llama_index.core.settings import Settings
 
 # Configuración de argparse
 parser = argparse.ArgumentParser(description="Conversión a embeddings de ficheros en modo texto (chunks)")
-parser.add_argument("--collection_name", help="URL del modelo de embeddings")
-parser.add_argument("--json_path", help="API del modelo de embeddins")
-parser.add_argument("--host_port", help="Directorio donde están los ficheros de chunks en texto")
-parser.add_argument("--host", help="Directorio donde se escribirá el fichero json con los embeddings")
+parser.add_argument("--collection_name", help="URL del modelo de embeddings", default=os.getenv("COLLECTION_NAME"))
+parser.add_argument("--json_path", help="API del modelo de embeddins", default=os.getenv("JSON_PATH"))
+parser.add_argument("--host_port", help="Directorio donde están los ficheros de chunks en texto", default=os.getenv("HOST_PORT"))
+parser.add_argument("--host", help="Directorio donde se escribirá el fichero json con los embeddings", default=os.getenv("HOST"))
 
 args = parser.parse_args()
 

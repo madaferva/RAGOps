@@ -83,10 +83,10 @@ def clean_text(text: str) -> str:
 
 # Configuración de argparse
 parser = argparse.ArgumentParser(description="Conversión a embeddings de ficheros en modo texto (chunks)")
-parser.add_argument("--api_url", help="URL del modelo de embeddings")
-parser.add_argument("--api_key", help="API del modelo de embeddins")
-parser.add_argument("--txt_folder", help="Directorio donde están los ficheros de chunks en texto")
-parser.add_argument("--output_path", help="Directorio donde se escribirá el fichero json con los embeddings")
+parser.add_argument("--api_url", help="URL del modelo de embeddings", default=os.getenv("API_URL"))
+parser.add_argument("--api_key", help="API del modelo de embeddings", default=os.getenv("API_KEY"))
+parser.add_argument("--txt_folder", help="Directorio donde están los ficheros de chunks en texto", default=os.getenv("TXT_FOLDER"))
+parser.add_argument("--output_path", help="Directorio donde se escribirá el fichero json con los embeddings", default=os.getenv("OUTPUT_PATH"))
 
 args = parser.parse_args()
 
