@@ -1,0 +1,5 @@
+---
+# defaults file for roles/indexer
+
+container_name: "indexing_container"
+image_name: "indexing"

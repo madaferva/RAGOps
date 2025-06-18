@@ -1,0 +1,5 @@
+---
+# defaults file for roles/retriever
+
+container_name: "retriever_container"
+image_name: "retriever"

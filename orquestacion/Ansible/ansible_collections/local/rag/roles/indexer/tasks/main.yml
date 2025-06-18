@@ -1,0 +1,27 @@
+---
+# tasks file for roles/indexer
+
+- name: Ejecutar contenedor de indexer
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ image_name }}"
+    state: started
+    detach: false
+    auto_remove: false
+    volumes:
+      - "{{ txt_folder }}/:/app/{{txt_folder | basename }}"
+      - "{{ output_path }}/:/app/{{ output_path | basename }}"
+    env:
+      API_URL: "{{ api_url }}"
+      API_KEY: "{{ api_key }} }}"
+      TXT_FOLDER: "/app/{{ txt_folder | basename }}/"
+      OUTPUT_PATH: "/app/{{ output_path | basename }}/"
+  register: indexing_output
+
+- name: Mostrar salida del indexing
+  debug:
+    msg: "{{ indexing_output.container.Output | default('Sin salida') }}"
+
+
+
+    

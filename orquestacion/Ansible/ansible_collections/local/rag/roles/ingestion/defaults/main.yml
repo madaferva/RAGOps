@@ -1,0 +1,5 @@
+---
+# defaults file for roles/ingestion
+
+container_name: "ingestion_container"
+image_name: "ingestion"

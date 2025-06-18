@@ -1,0 +1,23 @@
+---
+# tasks file for roles/chunking
+
+- name: Ejecutar contenedor de chunking
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ image_name }}"
+    state: started
+    detach: false
+    auto_remove: false
+    volumes:
+      - "{{ pdf_folder }}:/app/{{pdf_folder | basename }}"
+      - "{{ output_path }}:/app/{{ output_path | basename }}"
+    env:
+      PDF_FOLDER: "/app/{{ pdf_folder | basename }}"
+      OUTPUT_PATH: "/app/{{ output_path | basename }}"
+      CHUNK_SIZE: "{{ chunk_size }}"
+      CHUNK_OVERLAP: "{{ chunk_overlap }}"
+  register: chunking_output
+
+- name: Mostrar salida del chunking
+  debug:
+    msg: "{{ chunking_output.container.Output | default('Sin salida') }}"

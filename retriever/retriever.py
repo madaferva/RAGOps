@@ -27,63 +27,71 @@ def get_query_embedding(query: str, api_url: str, api_key: str, model_name: str)
     return response.json()["data"][0]["embedding"]
 
 # === Main ===
-parser = argparse.ArgumentParser(description="Consulta semántica y almacenamiento de resultados en JSON")
-parser.add_argument("--query", help="Texto de la pregunta que se quiere recuperar", default=os.getenv("QUERY"))
+parser = argparse.ArgumentParser(description="Retrieval semántico desde Qdrant con múltiples queries")
+parser.add_argument("--input_file", help="Ruta al archivo JSON con las queries (array de strings)", default=os.getenv("INPUT_FILE"))
 parser.add_argument("--api_url", help="URL del modelo de embeddings", default=os.getenv("API_URL"))
 parser.add_argument("--api_key", help="API KEY del modelo de embeddings", default=os.getenv("API_KEY"))
 parser.add_argument("--model_name", help="Nombre del modelo de embedding", default=os.getenv("MODEL_NAME"))
 parser.add_argument("--host", help="Host de la base de datos", default=os.getenv("HOST"))
 parser.add_argument("--port", type=int, help="Puerto Qdrant", default=os.getenv("PORT"))
-parser.add_argument("--collection", help="Nombre de la colección en la base de datos", default=os.getenv("COLLECTION"))
+parser.add_argument("--collection", help="Nombre de la colección en Qdrant", default=os.getenv("COLLECTION"))
 parser.add_argument("--top_k", type=int, help="Número de documentos relevantes a recuperar", default=os.getenv("TOP_K"))
 parser.add_argument("--output_dir", help="Directorio donde guardar el archivo JSON de resultados", default=os.getenv("OUTPUT_DIR"))
-parser.add_argument("--output_file", help="Nombre del archivo JSON (ej. resultados.json)", default=os.getenv("OUTPUT_FILE"))
+parser.add_argument("--output_file", help="Nombre del archivo de salida JSON", default=os.getenv("OUTPUT_FILE"))
 
 args = parser.parse_args()
 
-# Obtener embedding de la query
-embedding = get_query_embedding(args.query, args.api_url, args.api_key, args.model_name)
+# Leer queries desde archivo
+with open(args.input_file, "r", encoding="utf-8") as f:
+    queries = json.load(f)
 
 # Conexión a Qdrant
 client = QdrantClient(host=args.host, port=args.port)
 search_params = SearchParams(hnsw_ef=128, exact=False)
 
-# Realizar búsqueda
-results = client.search(
-    collection_name=args.collection,
-    query_vector=embedding,
-    limit=args.top_k,
-    search_params=search_params,
-    with_payload=True
-)
+# Resultados acumulados
+all_results = []
 
-# Estructura de salida
-output_data = {
-    "query": args.query,
-    "results": []
-}
+for query in queries:
+    print(f"\nProcesando query: \"{query}\"")
+    try:
+        embedding = get_query_embedding(query, args.api_url, args.api_key, args.model_name)
 
-print(f"\nResultados para: \"{args.query}\"\n")
+        results = client.search(
+            collection_name=args.collection,
+            query_vector=embedding,
+            limit=args.top_k,
+            search_params=search_params,
+            with_payload=True
+        )
 
-for i, result in enumerate(results):
-    print(f"#{i+1} - Score: {result.score:.4f}")
-    print(f"Fuente: {result.payload.get('source')}")
-    print(f"Chunk: {result.payload.get('chunk')}")
-    print(f"Texto: {result.payload.get('text')}\n")
+        query_result = {
+            "query": query,
+            "results": []
+        }
 
-    output_data["results"].append({
-        "score": result.score,
-        "source": result.payload.get("source"),
-        "chunk": result.payload.get("chunk"),
-        "text": result.payload.get("text")
-    })
+        for i, result in enumerate(results):
+            print(f"  #{i+1} - Score: {result.score:.4f}")
+            print(f"     Fuente: {result.payload.get('source')}")
+            print(f"     Chunk: {result.payload.get('chunk')}")
 
-# Asegurar que el directorio existe
+            query_result["results"].append({
+                "score": result.score,
+                "source": result.payload.get("source"),
+                "chunk": result.payload.get("chunk"),
+                "text": result.payload.get("text")
+            })
+
+        all_results.append(query_result)
+
+    except Exception as e:
+        print(f"Error en la query: \"{query}\": {e}")
+
+# Guardar resultados
 os.makedirs(args.output_dir, exist_ok=True)
 output_path = os.path.join(args.output_dir, args.output_file)
 
-# Guardar resultados en JSON
 with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(output_data, f, ensure_ascii=False, indent=2)
+    json.dump(all_results, f, ensure_ascii=False, indent=2)
 
-print(f"Resultados guardados en: {output_path}")
+print(f"\n Todos los resultados guardados en: {output_path}")

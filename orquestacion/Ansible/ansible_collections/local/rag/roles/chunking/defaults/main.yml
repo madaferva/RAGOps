@@ -1,0 +1,5 @@
+---
+# defaults file for roles/chunking
+
+container_name: "chunking_container"
+image_name: "chunking"

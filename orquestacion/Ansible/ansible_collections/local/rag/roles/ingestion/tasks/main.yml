@@ -1,0 +1,23 @@
+---
+# tasks file for roles/ingestion
+
+- name: Ejecutar contenedor de ingestion
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ image_name }}"
+    state: started
+    detach: false
+    auto_remove: false
+    volumes:
+      - "{{ json_path | dirname }}/:/app/{{json_path | dirname | basename }}"
+
+    env:
+      JSON_PATH: "/app/{{ json_path | dirname | basename }}/{{ json_path | basename }}"
+      COLLECTION_NAME: "{{ collection_name }}"
+      HOST_PORT: "{{ host_port}}"
+      HOST: "{{ host }}"
+  register: ingestion_output
+
+- name: Mostrar salida del ingestion
+  debug:
+    msg: "{{ ingestion_output.container.Output | default('Sin salida') }}"

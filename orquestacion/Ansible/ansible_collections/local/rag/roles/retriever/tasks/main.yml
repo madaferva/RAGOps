@@ -1,0 +1,33 @@
+---
+# tasks file for roles/retriever
+
+- name: Ejecutar contenedor de retriever
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ image_name }}"
+    state: started
+    detach: false
+    auto_remove: false
+    volumes:
+      - "{{ output_dir }}/:/app/{{ output_dir | basename }}"
+
+    env:
+
+      QUERY: "{{ query }}"
+      API_URL: "{{ api_url }}"
+      API_KEY: "{{ api_key }}"
+      MODEL_NAME: "{{ model_name }}"
+      HOST: "{{ host }}"
+      PORT: "{{ port }}"
+      COLLECTION: "{{ collection_name }}"
+      TOP_K: "{{ top_k }}"
+      OUTPUT_DIR: "/app/{{ output_dir | basename }}"
+      OUTPUT_FILE: "{{ output_file }}"
+
+
+
+  register: ingestion_output
+
+- name: Mostrar salida del retriever
+  debug:
+    msg: "{{ retriever_output.container.Output | default('Sin salida') }}"
