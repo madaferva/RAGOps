@@ -87,7 +87,7 @@ parser.add_argument("--api_url", help="URL del modelo de embeddings", default=os
 parser.add_argument("--api_key", help="API del modelo de embeddings", default=os.getenv("API_KEY"))
 parser.add_argument("--txt_folder", help="Directorio donde están los ficheros de chunks en texto", default=os.getenv("TXT_FOLDER"))
 parser.add_argument("--output_path", help="Directorio donde se escribirá el fichero json con los embeddings", default=os.getenv("OUTPUT_PATH"))
-
+parser.add_argument("--embeddings_file", help="Fichero donde se escribirá el fichero json con los embeddings", default=os.getenv("EMBEDDINGS_FILE"))
 args = parser.parse_args()
 
 
@@ -96,6 +96,7 @@ api_key = args.api_key
 
 txt_folder = args.txt_folder
 output_path = args.output_path
+embeddings_file = args.embeddings_file
 
 # Crear instancia
 embedding_model = TEIEmbeddingModel(
@@ -165,10 +166,10 @@ for filename in os.listdir(chunk_dir):
         })
 
 # Guardar en JSON
-print(output_path + "ocp_embeddings.json")
+print(output_path + embeddings_file)
 
-with open(output_path + "ocp_embeddings.json", "w", encoding="utf-8") as out_file:
+with open(output_path + embeddings_file, "w", encoding="utf-8") as out_file:
     json.dump(output, out_file, ensure_ascii=False, indent=2)
 
-print(f"Procesados {len(output)} chunks y guardados en 'ocp_embeddings.json'")
+print(f"Procesados {len(output)} chunks y guardados en " + embeddings_file)
 print(i)

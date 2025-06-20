@@ -6,3 +6,6 @@ datasets>=2.14.5
 pandas
 requests
 openai
+deepeval
+litellm
+
