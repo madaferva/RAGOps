@@ -1,0 +1,68 @@
+---
+# tasks file for validation
+
+# Bloque de logging
+
+- name: Arranque de medicion de tiempo
+  ansible.builtin.set_fact:
+    start_time: "{{ lookup('pipe', 'date +%s') | int }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    path: "{{ log }}"
+    marker: ""
+    block: |
+      VALIDATION:
+      Comienzo: {{ lookup('pipe', 'date')}}
+
+# Validation
+
+- name: Validation
+  community.docker.docker_container:
+    name: "{{ workplan_name }}_validation"
+    image: "{{ image_name }}"
+    state: started
+    detach: false
+    auto_remove: false
+    volumes:
+      - "{{ output_validation | dirname }}/:/app/{{ output_validation | dirname | basename }}/"
+      - "{{ answer_file | dirname }}:/app/{{ answer_file | dirname | basename }}/"
+    env:
+
+      ANSWER_FILE: "/app/{{ answer_file | dirname | basename }}/{{ answer_file | basename }}"
+      OUTPUT_VALIDATION: "/app/{{ output_validation | dirname | basename }}/{{ output_validation | basename }}"
+      EMBEDDINGS_API_URL: "{{ embeddings_api_url}}"
+      EMBEDDINGS_API_KEY: "{{ embeddings_api_key}}"
+      EMBEDDINGS_MODEL_NAME: "{{ embeddings_model_name}}"
+      LLM_API_URL: "{{ llm_api_url }}"
+      LLM_API_KEY: "{{ llm_api_key }}"
+      LLM_MODEL_NAME: "{{ llm_model_name }}"
+
+  register: validation_output
+
+# Bloque de logging
+
+- name: Parada de medicion de tiempo
+  ansible.builtin.set_fact:
+    end_time: "{{ lookup('pipe', 'date +%s') | int }}"
+
+
+
+- name: Almacena duracion
+  ansible.builtin.set_fact:
+    total_time: "{{ '%H:%M:%S'  | strftime( end_time | int - start_time | int ) }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    marker: ""
+    path: "{{ log }}"
+    block: |
+      {{ validation_output.container.Output }}
+      Final: {{ lookup('pipe', 'date') }}
+      Duración: {{ total_time }}
+
+- name: Tarea terminada
+  debug:
+     msg: "Tarea de validación finalizada. Log guardado. Duración {{ total_time }} segundos"

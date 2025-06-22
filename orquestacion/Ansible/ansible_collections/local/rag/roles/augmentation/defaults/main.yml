@@ -1,0 +1,5 @@
+---
+# defaults file for augmentation
+
+container_name: "augmentation_container"
+image_name: "augmentation"

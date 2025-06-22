@@ -149,7 +149,7 @@ for filename in os.listdir(chunk_dir):
             embedding = embedding_model._get_text_embedding(content)
             i=i+1
             lenemb = len(embedding)
-            print(f'{i} Longitud: {lenemb}')
+            #print(f'{i} Longitud: {lenemb}')
             #time.sleep(1)
             #print(embedding)
             #print(content)
@@ -166,7 +166,8 @@ for filename in os.listdir(chunk_dir):
         })
 
 # Guardar en JSON
-print(output_path + embeddings_file)
+
+# print(output_path + embeddings_file)
 
 with open(output_path + embeddings_file, "w", encoding="utf-8") as out_file:
     json.dump(output, out_file, ensure_ascii=False, indent=2)

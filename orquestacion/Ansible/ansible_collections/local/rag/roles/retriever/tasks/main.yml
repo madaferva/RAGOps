@@ -1,19 +1,38 @@
 ---
 # tasks file for roles/retriever
 
+
+# Bloque de logging
+
+- name: Arranque de medicion de tiempo
+  ansible.builtin.set_fact:
+    start_time: "{{ lookup('pipe', 'date +%s') | int }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    path: "{{ log }}"
+    marker: ""
+    block: |
+      RETRIEVING:
+      Comienzo: {{ lookup('pipe', 'date')}}
+
+# Retriever
+
 - name: Ejecutar contenedor de retriever
   community.docker.docker_container:
-    name: "{{ container_name }}"
+    name: "{{ workplan_name }}_retriever"
     image: "{{ image_name }}"
     state: started
     detach: false
     auto_remove: false
     volumes:
       - "{{ output_dir }}/:/app/{{ output_dir | basename }}"
+    #  - "{{ input_file | dirname }}/:/app/{{ input_file | dirname | basename }}"
 
     env:
 
-      QUERY: "{{ query }}"
+      INPUT_FILE: "/app/{{ input_file | dirname | basename }}/{{input_file | basename }}"
       API_URL: "{{ api_url }}"
       API_KEY: "{{ api_key }}"
       MODEL_NAME: "{{ model_name }}"
@@ -24,10 +43,30 @@
       OUTPUT_DIR: "/app/{{ output_dir | basename }}"
       OUTPUT_FILE: "{{ output_file }}"
 
+  register: retriever_output
+
+## Bloque de logging
+
+- name: Parada de medicion de tiempo
+  ansible.builtin.set_fact:
+    end_time: "{{ lookup('pipe', 'date +%s') | int }}"
 
 
-  register: ingestion_output
 
-- name: Mostrar salida del retriever
+- name: Almacena duracion
+  ansible.builtin.set_fact:
+    total_time: "{{ '%H:%M:%S'  | strftime( end_time | int - start_time | int ) }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    marker: ""
+    path: "{{ log }}"
+    block: |
+      {{ retriever_output.container.Output }}
+      Final: {{ lookup('pipe', 'date') }}
+      Duración: {{ total_time }}
+
+- name: Tarea terminada
   debug:
-    msg: "{{ retriever_output.container.Output | default('Sin salida') }}"
+     msg: "Tarea de retrieving finalizada. Log guardado. Duración {{ total_time }} segundos"

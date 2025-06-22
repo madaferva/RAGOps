@@ -1,23 +1,64 @@
 ---
 # tasks file for roles/chunking
 
-- name: Ejecutar contenedor de chunking
+# Bloque de logging
+
+- name: Arranque de medicion de tiempo
+  ansible.builtin.set_fact:
+    start_time: "{{ lookup('pipe', 'date +%s') | int }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    path: "{{ log }}"
+    marker: ""
+    block: |
+      CHUNKING:
+      Comienzo: {{ lookup('pipe', 'date')}}
+
+# Chunking      
+
+- name: Chunking
   community.docker.docker_container:
-    name: "{{ container_name }}"
+    name: "{{ workplan_name }}_chunking"
     image: "{{ image_name }}"
     state: started
     detach: false
     auto_remove: false
     volumes:
-      - "{{ pdf_folder }}:/app/{{pdf_folder | basename }}"
-      - "{{ output_path }}:/app/{{ output_path | basename }}"
+      - "{{ pdf_folder }}:/app/{{pdf_folder | basename }}/"
+      - "{{ output_path }}:/app/{{ output_path | basename }}/"
     env:
-      PDF_FOLDER: "/app/{{ pdf_folder | basename }}"
-      OUTPUT_PATH: "/app/{{ output_path | basename }}"
+
+      PDF_FOLDER: "/app/{{ pdf_folder | basename }}/"
+      OUTPUT_PATH: "/app/{{ output_path | basename }}/"
       CHUNK_SIZE: "{{ chunk_size }}"
       CHUNK_OVERLAP: "{{ chunk_overlap }}"
+
   register: chunking_output
 
-- name: Mostrar salida del chunking
+## Bloque de logging
+
+- name: Parada de medicion de tiempo
+  ansible.builtin.set_fact:
+    end_time: "{{ lookup('pipe', 'date +%s') | int }}"
+
+
+
+- name: Almacena duracion
+  ansible.builtin.set_fact:
+    total_time: "{{ '%H:%M:%S'  | strftime( end_time | int - start_time | int ) }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    marker: ""
+    path: "{{ log }}"
+    block: |
+      {{ chunking_output.container.Output }}
+      Final: {{ lookup('pipe', 'date') }}
+      Duración: {{ total_time }}
+
+- name: Tarea terminada
   debug:
-    msg: "{{ chunking_output.container.Output | default('Sin salida') }}"
+     msg: "Tarea de chunking finalizada. Log guardado. Duración {{ total_time }} segundos"

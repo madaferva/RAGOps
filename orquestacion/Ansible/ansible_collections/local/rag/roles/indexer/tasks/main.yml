@@ -1,9 +1,27 @@
 ---
 # tasks file for roles/indexer
 
+# Bloque de logging
+
+- name: Arranque de medicion de tiempo
+  ansible.builtin.set_fact:
+    start_time: "{{ lookup('pipe', 'date +%s') | int }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    path: "{{ log }}"
+    marker: ""
+    block: |
+      INDEXING:
+      Comienzo: {{ lookup('pipe', 'date')}}
+
+
+# Indexer
+
 - name: Ejecutar contenedor de indexer
   community.docker.docker_container:
-    name: "{{ container_name }}"
+    name: "{{ workplan_name }}_indexer"
     image: "{{ image_name }}"
     state: started
     detach: false
@@ -16,11 +34,34 @@
       API_KEY: "{{ api_key }} }}"
       TXT_FOLDER: "/app/{{ txt_folder | basename }}/"
       OUTPUT_PATH: "/app/{{ output_path | basename }}/"
+      EMBEDDINGS_FILE: "{{ embeddings_file }}"
   register: indexing_output
 
-- name: Mostrar salida del indexing
+## Bloque de logging
+
+- name: Parada de medicion de tiempo
+  ansible.builtin.set_fact:
+    end_time: "{{ lookup('pipe', 'date +%s') | int }}"
+
+
+
+- name: Almacena duracion
+  ansible.builtin.set_fact:
+    total_time: "{{ '%H:%M:%S'  | strftime( end_time | int - start_time | int ) }}"
+
+- name: Marca de inicio en log
+  ansible.builtin.blockinfile:
+    create: true
+    marker: ""
+    path: "{{ log }}"
+    block: |
+      {{ indexing_output.container.Output }}
+      Final: {{ lookup('pipe', 'date') }}
+      Duración: {{ total_time }}
+
+- name: Tarea terminada
   debug:
-    msg: "{{ indexing_output.container.Output | default('Sin salida') }}"
+     msg: "Tarea de indexing finalizada. Log guardado. Duración {{ total_time }} segundos"
 
 
 

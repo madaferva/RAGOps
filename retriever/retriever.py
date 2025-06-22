@@ -28,7 +28,7 @@ def get_query_embedding(query: str, api_url: str, api_key: str, model_name: str)
 
 # === Main ===
 parser = argparse.ArgumentParser(description="Retrieval semántico desde Qdrant con múltiples queries")
-parser.add_argument("--input_file", help="Ruta al archivo JSON con las queries (array de strings)", default=os.getenv("INPUT_FILE"))
+parser.add_argument("--input_file", help="Ruta al archivo JSON con las preguntas (array de strings)", default=os.getenv("INPUT_FILE"))
 parser.add_argument("--api_url", help="URL del modelo de embeddings", default=os.getenv("API_URL"))
 parser.add_argument("--api_key", help="API KEY del modelo de embeddings", default=os.getenv("API_KEY"))
 parser.add_argument("--model_name", help="Nombre del modelo de embedding", default=os.getenv("MODEL_NAME"))

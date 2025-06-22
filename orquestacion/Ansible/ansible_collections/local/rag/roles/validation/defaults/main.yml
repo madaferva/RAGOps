@@ -1,0 +1,5 @@
+---
+# defaults file for validation
+
+container_name: "validation_container"
+image_name: "validation"

@@ -31,7 +31,7 @@ host = args.host
 batch_size = 50
 timeout_sec = 60.0
 
-# Desactivar embeddings por defecto en LlamaIndex ===
+# Desactivar embeddings por defecto en LlamaIndex
 Settings.embed_model = None
 
 # Conexión a Qdrant
@@ -45,17 +45,17 @@ with open(json_path, "r") as f:
 
 vector_dim = len(data[0]["embedding"])
 total_points = len(data)
-print(f"📏 Dimensión del vector: {vector_dim}, total: {total_points} puntos")
+print(f" Dimensión del vector: {vector_dim}, total: {total_points} puntos")
 
 # Crear colección en Qdrant si no existe
 if not qdrant_client.collection_exists(collection_name):
-    print(f"🧱 Creando colección '{collection_name}'...")
+    print(f" Creando colección '{collection_name}'...")
     qdrant_client.create_collection(
         collection_name=collection_name,
         vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE)
     )
 else:
-    print(f"✅ Colección '{collection_name}' ya existe.")
+    print(f" Colección '{collection_name}' ya existe.")
 
 # Inserción por lotes para evitar timeout
 print("Iniciando inserción por lotes...")
@@ -70,8 +70,8 @@ for i in range(0, total_points, batch_size):
                 vector=item["embedding"],
                 payload={
                     # "text": item["text"],
-                    # "source": item["source"],
-                    # "chunk": item["chunk"]
+                    "source": item["source"],
+                    "chunk": item["chunk"],
                     "text": item["text"]
                 }
             ))
@@ -80,12 +80,11 @@ for i in range(0, total_points, batch_size):
 
     try:
         qdrant_client.upsert(collection_name=collection_name, points=points)
-        print(f"Batch {i}-{i + len(points) - 1} insertado.")
+        #print(f"Batch {i}-{i + len(points) - 1} insertado.")
     except Exception as e:
         print(f"Error al insertar el batch {i}-{i + len(points) - 1}: {e}")
 
-# # === CREAR ÍNDICE PARA CONSULTAS (OPCIONAL) ===
-# vector_store = QdrantVectorStore(client=qdrant_client, collection_name=collection_name)
+# # vector_store = QdrantVectorStore(client=qdrant_client, collection_name=collection_name)
 # index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 
 print("Inserción completada y lista para consultas.")

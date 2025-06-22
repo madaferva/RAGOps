@@ -75,7 +75,7 @@ documents = SimpleDirectoryReader(str(input_dir)).load_data()
 
 i=0
 
-print ('Documents' + str(len(documents)))
+print ('Documentos: ' + str(len(documents)))
       
 # Trato de cada documento: En el caso el tratamiento de PDF de LLamaindex asume 
 # que el documento es cada pagina del PDF
@@ -92,7 +92,7 @@ for doc in documents:
 
     for node in nodes:   
       i=i+1
-      print(f'{base_name} - {i}')
+      #print(f'{base_name} - {i}')
       #chunk_text = node.text
       chunk_text = clean_text(node.text)
 
@@ -107,5 +107,5 @@ for doc in documents:
 
 
 
-print(f'Chunking con metadatos completado con SimpleDirectoryReader. Chunk Size: {chunk_size}. Chunk Overlap: {chunk_overlap} Chunks generated: {i}\n')
+print(f'Chunking con metadatos completado. Chunk Size: {chunk_size}. Chunk Overlap: {chunk_overlap} Chunks generados: {i} \n')
 
