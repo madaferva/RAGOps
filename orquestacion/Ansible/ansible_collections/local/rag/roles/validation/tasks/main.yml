@@ -53,7 +53,7 @@
   ansible.builtin.set_fact:
     total_time: "{{ '%H:%M:%S'  | strftime( end_time | int - start_time | int ) }}"
 
-- name: Marca de inicio en log
+- name: Marca de final en log
   ansible.builtin.blockinfile:
     create: true
     marker: ""

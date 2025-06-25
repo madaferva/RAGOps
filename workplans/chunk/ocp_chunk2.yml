@@ -1,6 +1,6 @@
 # pipeline
 ---
-- name: OCP temp 2 workplan 
+- name: OCP chunk 2 workplan 
   hosts: localhost
   gather_facts: false
 
@@ -8,8 +8,8 @@
 
     # General infra
 
-    base: "/home/davidfv/experiments/temp/ocp_temp2"
-    workplan_name: "ocp_temp_2"
+    base: "/home/davidfv/experiments/chunk/ocp_chunk2"
+    workplan_name: "ocp_chunk_2"
     log: "{{ base }}/{{ workplan_name }}.log"
 
 
@@ -29,8 +29,8 @@
    
     chunks: "{{ base }}/chunks"
     pdfs: "/home/davidfv/datasets/OCP"
-    c_size: 400
-    c_overlap: 30 
+    c_size: 200
+    c_overlap: 20 
     
     # Embedding
     embeddings: "{{ base }}/embeddings"

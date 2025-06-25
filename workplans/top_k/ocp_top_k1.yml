@@ -1,6 +1,6 @@
 # pipeline
 ---
-- name: OCP chunk 3 workplan 
+- name: OCP top_k 1 workplan 
   hosts: localhost
   gather_facts: false
 
@@ -8,8 +8,8 @@
 
     # General infra
 
-    base: "/home/davidfv/experiments/chunk/ocp_chunk3"
-    workplan_name: "ocp_chunk_3"
+    base: "/home/davidfv/experiments/top_k/ocp_top_k1"
+    workplan_name: "ocp_top_k1"
     log: "{{ base }}/{{ workplan_name }}.log"
 
 
@@ -42,13 +42,13 @@
     # Retrieving
     retriever: "{{ base }}/retriever"
     retriever_file: "{{ workplan_name }}_retrievers.json"
-    retriever_top_k: "15"
+    retriever_top_k: "5"
 
     # Augmentation
     answers: "{{ base }}/answers"
     answers_file: "{{ workplan_name }}_answers.json"
-    augmentation_top_k: "15"
-    temp: "0.3"
+    augmentation_top_k: "5"
+    temp: "0.0"
     max_tok: "350"
 
     # Validation

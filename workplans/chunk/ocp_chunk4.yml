@@ -1,6 +1,6 @@
 # pipeline
 ---
-- name: OCP temp 4 workplan 
+- name: OCP chunk 4 workplan 
   hosts: localhost
   gather_facts: false
 
@@ -8,8 +8,8 @@
 
     # General infra
 
-    base: "/home/davidfv/experiments/temp/ocp_temp4"
-    workplan_name: "ocp_temp_4"
+    base: "/home/davidfv/experiments/chunk/ocp_chunk4"
+    workplan_name: "ocp_chunk_4"
     log: "{{ base }}/{{ workplan_name }}.log"
 
 
@@ -29,7 +29,7 @@
    
     chunks: "{{ base }}/chunks"
     pdfs: "/home/davidfv/datasets/OCP"
-    c_size: 400
+    c_size: 550
     c_overlap: 30 
     
     # Embedding
@@ -48,7 +48,7 @@
     answers: "{{ base }}/answers"
     answers_file: "{{ workplan_name }}_answers.json"
     augmentation_top_k: "15"
-    temp: "1"
+    temp: "0.3"
     max_tok: "350"
 
     # Validation

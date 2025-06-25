@@ -19,7 +19,7 @@
 
 # Retriever
 
-- name: Ejecutar contenedor de retriever
+- name: Retriever
   community.docker.docker_container:
     name: "{{ workplan_name }}_retriever"
     image: "{{ image_name }}"
@@ -57,7 +57,7 @@
   ansible.builtin.set_fact:
     total_time: "{{ '%H:%M:%S'  | strftime( end_time | int - start_time | int ) }}"
 
-- name: Marca de inicio en log
+- name: Marca de final en log
   ansible.builtin.blockinfile:
     create: true
     marker: ""
