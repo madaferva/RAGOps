@@ -7,14 +7,15 @@
   vars:
     collection: "harry"
     chunks: "/home/davidfv/datasets/harrypotter_chunks"
-    
+    pdfs: "/home/davidfv/datasets/harrypotter_pdfs"
+    embeddings: "/home/davidfv/datasets/harrypotter_emb"
   tasks:
 
     - name: Chunking Modelo 1
       include_role:
         name: local.rag.chunking
       vars:
-        pdf_folder: "/home/davidfv/datasets/harrypotter_pdfs"
+        pdf_folder: "{{ pdfs }}"
         output_path: "{{ chunks }}"
         chunk_size: "256"
         chunk_overlap: "25"
@@ -26,32 +27,32 @@
         api_url: "http://10.10.78.12:8001"
         api_key: "prueba"
         txt_folder: "{{ chunks }}"
-        output_path: "/home/davidfv/datasets/harrypotter_emb"
+        output_path: "{{ embeddings }}"
 
-    - name: Ingestion Modelo 1
-      include_role:
-        name: local.rag.ingestion
-      vars:
-        json_path: "/home/davidfv/datasets/harrypotter_emb/ocp_embeddings.json"
-        collection_name: "{{ collection }}"
-        host_port: "6333"
-        host: "192.168.1.68"
+    # - name: Ingestion Modelo 1
+    #   include_role:
+    #     name: local.rag.ingestion
+    #   vars:
+    #     json_path: "/home/davidfv/datasets/harrypotter_emb/ocp_embeddings.json"
+    #     collection_name: "{{ collection }}"
+    #     host_port: "6333"
+    #     host: "192.168.1.68"
 
     
-    - name: Retriever Modelo 1
-      include_role:
-        name: local.rag.retriever
-      vars:
-        query: "How old is Harry Potter?"
-        api_url: "http://10.10.78.12:8001"
-        api_key: "prueba"
-        model_name: "nvidia/nv-embedqa-mistral-7b-v2"
-        host: "192.168.1.68"
-        port: "6333"
-        collection_name: "{{ collection }}"
-        top_k: "10"
-        output_dir: "/home/davidfv/datasets/harrypotter_retr"
-        output_file: "harry_retr.json"
+    # - name: Retriever Modelo 1
+    #   include_role:
+    #     name: local.rag.retriever
+    #   vars:
+    #     query: "How old is Harry Potter?"
+    #     api_url: "http://10.10.78.12:8001"
+    #     api_key: "prueba"
+    #     model_name: "nvidia/nv-embedqa-mistral-7b-v2"
+    #     host: "192.168.1.68"
+    #     port: "6333"
+    #     collection_name: "{{ collection }}"
+    #     top_k: "10"
+    #     output_dir: "/home/davidfv/datasets/harrypotter_retr"
+    #     output_file: "harry_retr.json"
 
 
  
